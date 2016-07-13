@@ -19,11 +19,20 @@ class WeatherData(Subject):
         if observer in self.observers:
             self.observers.remove(observer)
 
+    def measurements_changed(self):
+        self.set_changed()
+        self.notify_observers()  # We do not pass data, means use pull mode
+
+    def set_changed(self):
+        self.changed = True
+
     def notify_observers(self):
         '''We sent statement to every observers. Since all observers
          implement update() method, we know how to notify them.'''
-        for observer in self.observers:
-            observer.update(self.temperature, self.humidity, self.pressure)
+        if self.changed:
+            for observer in self.observers:
+                observer.update()
+            self.changed = False
 
     def measurements_changes(self):
         '''We need to notify observers when we get measurements from
@@ -35,6 +44,16 @@ class WeatherData(Subject):
         self.temperature = temperature
         self.humidity = humidity
         self.pressure = pressure
-        self.measurements_changes()
+        self.measurements_changed()
+
+    # Below three are examples of getter methods
+    def get_temperature(self):
+        return self.temperature
+
+    def get_humidity(self):
+        return self.humidity
+
+    def get_pressure(self):
+        return self.pressure
 
     # Other methods in WeatherData
